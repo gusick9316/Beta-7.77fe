@@ -1,0 +1,2009 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>구겜스 뮤직</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #1e1e2e;
+            color: #ffffff;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 배경 애니메이션 */
+        .animated-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.2;
+            filter: blur(40px);
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            50% {
+                transform: translate(100px, 50px) rotate(180deg);
+            }
+            100% {
+                transform: translate(0, 0) rotate(360deg);
+            }
+        }
+
+        /* 인트로 화면 */
+        #intro {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            position: absolute;
+            background-color: #1e1e2e;
+            z-index: 1000;
+            transition: all 1s ease-in-out;
+        }
+
+        .intro-text {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 10px #5865f2, 0 0 20px #5865f2;
+            opacity: 0;
+            transform: scale(0.5);
+            animation: introAnim 2s forwards;
+        }
+
+        @keyframes introAnim {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* 메인 화면 */
+        #main {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100vw;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            color: #fff;
+            text-shadow: 0 0 10px #5865f2, 0 0 20px #5865f2;
+        }
+
+        .btn {
+            background-color: #5865f2;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(88, 101, 242, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 15px rgba(88, 101, 242, 0.8);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%, -50%);
+            transform-origin: 50% 50%;
+        }
+
+        .btn:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
+        }
+
+        .copyright {
+            position: absolute;
+            bottom: 20px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.8rem;
+        }
+
+        /* 카테고리 화면 */
+        #category-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100vw;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .category-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            color: #fff;
+            text-shadow: 0 0 10px #5865f2, 0 0 20px #5865f2;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+            max-width: 800px;
+        }
+
+        .category-btn {
+            background-color: #5865f2;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(88, 101, 242, 0.5);
+            text-align: center;
+            width: 100%;
+        }
+
+        .category-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 15px rgba(88, 101, 242, 0.8);
+            background-color: #4752c4;
+        }
+
+        .back-btn {
+            margin-top: 20px;
+        }
+
+        /* 커스텀 검색 모달 */
+        #custom-search-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .custom-search-container {
+            background-color: #2a2d3e;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 0 20px rgba(88, 101, 242, 0.5);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        #custom-search-modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        #custom-search-modal.active .custom-search-container {
+            transform: scale(1);
+        }
+
+        .custom-search-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .custom-search-input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border: none;
+            background-color: #3e4156;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .custom-search-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* 플레이어 화면 */
+        #player-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100vw;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        #youtube-player {
+            width: 80%;
+            max-width: 800px;
+            height: 450px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(88, 101, 242, 0.5);
+        }
+
+        .controls {
+            display: flex;
+            margin-top: 20px;
+        }
+
+        .current-category {
+            margin-top: 15px;
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* 로딩 애니메이션 */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(30, 30, 46, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1100;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(88, 101, 242, 0.3);
+            border-radius: 50%;
+            border-top-color: #5865f2;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        .loading-text {
+            position: absolute;
+            margin-top: 100px;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* 알림 스타일 */
+        .notification {
+            position: fixed;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(40, 43, 54, 0.9);
+            border-radius: 12px;
+            padding: 12px 20px;
+            box-shadow: 0 0 20px rgba(88, 101, 242, 0.5);
+            z-index: 100;
+            transition: top 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            width: auto;
+            max-width: 80%;
+        }
+
+        .notification.show {
+            top: 20px;
+        }
+
+        .notification-content {
+            color: white;
+            font-size: 1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+<style>
+/* 카테고리 화면 */
+        #category-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100vw;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .category-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            color: #fff;
+            text-shadow: 0 0 10px #5865f2, 0 0 20px #5865f2;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+            max-width: 800px;
+        }
+
+        .category-btn {
+            background-color: #5865f2;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(88, 101, 242, 0.5);
+            text-align: center;
+            width: 100%;
+        }
+
+        .category-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 15px rgba(88, 101, 242, 0.8);
+            background-color: #4752c4;
+        }
+
+        .back-btn {
+            margin-top: 20px;
+        }
+
+        /* 커스텀 검색 모달 */
+        #custom-search-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .custom-search-container {
+            background-color: #2a2d3e;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 0 20px rgba(88, 101, 242, 0.5);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        #custom-search-modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        #custom-search-modal.active .custom-search-container {
+            transform: scale(1);
+        }
+
+        .custom-search-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .custom-search-input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border: none;
+            background-color: #3e4156;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .custom-search-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* 플레이어 화면 */
+        #player-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100vw;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        #youtube-player {
+            width: 80%;
+            max-width: 800px;
+            height: 450px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(88, 101, 242, 0.5);
+        }
+
+        .controls {
+            display: flex;
+            margin-top: 20px;
+        }
+
+        .current-category {
+            margin-top: 15px;
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+</style>
+</head>
+<body>
+    <!-- 배경 애니메이션 -->
+    <div class="animated-bg" id="animated-bg"></div>
+
+    <!-- 인트로 화면 -->
+    <div id="intro">
+        <div class="intro-text">구겜스 뮤직!</div>
+    </div>
+
+    <!-- 메인 화면 -->
+    <div id="main">
+        <div class="logo">구겜스 뮤직</div>
+        <button id="play-btn" class="btn">노래 재생</button>
+        <div class="copyright">ⓒ2025 구겜스</div>
+    </div>
+
+    <!-- 카테고리 화면 -->
+    <div id="category-container">
+        <div class="category-title">카테고리 선택</div>
+        <div class="category-grid">
+            <button class="category-btn" data-category="korea">한국</button>
+            <button class="category-btn" data-category="japan">일본</button>
+            <button class="category-btn" data-category="usa">미국</button>
+            <button class="category-btn" data-category="uk">영국</button>
+            <button class="category-btn" data-category="canada">캐나다</button>
+            <button class="category-btn" data-category="australia">호주</button>
+            <button class="category-btn" data-category="india">인도</button>
+            <button class="category-btn" data-category="animation">애니메이션</button>
+            <button class="category-btn" data-category="piano">피아노</button>
+            <button class="category-btn" data-category="custom">커스텀</button>
+        </div>
+        <button id="back-to-main-btn" class="btn back-btn">뒤로 가기</button>
+    </div>
+
+    <!-- 커스텀 검색 모달 -->
+    <div id="custom-search-modal">
+        <div class="custom-search-container">
+            <div class="custom-search-title">커스텀 검색</div>
+            <input type="text" id="custom-search-input" class="custom-search-input" placeholder="검색어를 입력하세요">
+            <div class="custom-search-buttons">
+                <button id="custom-search-cancel" class="btn">취소</button>
+                <button id="custom-search-confirm" class="btn">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 플레이어 화면 -->
+    <div id="player-container">
+        <div id="youtube-player"></div>
+        <div class="current-category" id="current-category">카테고리: 일반</div>
+        <div class="controls">
+            <button id="back-to-category-btn" class="btn">카테고리</button>
+            <button id="stop-btn" class="btn">중지</button>
+            <button id="next-btn" class="btn">다음</button>
+        </div>
+    </div>
+
+    <!-- 로딩 오버레이 -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">음악을 검색 중입니다...</div>
+    </div>
+
+    <!-- 알림 -->
+    <div class="notification" id="notification">
+        <div class="notification-content" id="notification-content"></div>
+    </div>
+
+    <script>
+        // YouTube API 로드
+        let tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        let firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        // 전역 변수
+        let player;
+        let currentVideoId = '';
+        let videoIds = [];
+        let currentIndex = 0;
+        let isPlaying = false;
+        let watchedVideos = []; // 시청한 영상 ID 저장
+        let currentCategory = '일반'; // 현재 선택된 카테고리
+        let searchTimeout = null; // 검색 타임아웃 핸들러
+        let failedAttempts = 0; // 검색 실패 횟수
+        let relaxedSearch = false; // 완화된 검색 조건 사용 여부
+
+        // 뮤직비디오 관련 키워드 (제목에 포함되어야 함)
+        const musicVideoKeywords = [
+            'official music video', 'official video', 'music video', 'lyric video',
+            'visualizer', 'visualiser', 'performance video', 'dance performance',
+            'live performance', 'live video', 'official audio', 'audio',
+            'fanmade video', 'teaser', 'trailer', 'behind the scenes',
+            'concept film', 'short film', 'dance practice video', 'official audio'
+        ];
+
+        // 카테고리별 검색 키워드
+        const categoryKeywords = {
+            'korea': 'korean music k-pop kpop',
+            'japan': 'japanese music j-pop jpop',
+            'usa': 'american music us pop',
+            'uk': 'british music uk pop',
+            'canada': 'canadian music canada',
+            'australia': 'australian music australia',
+            'india': 'indian music bollywood',
+            'animation': 'anime music soundtrack theme song',
+            'piano': 'piano music instrumental cover',
+            'custom': '' // 사용자 입력으로 채워짐
+        };
+
+        // 배경 애니메이션 생성
+        function createBackgroundAnimation() {
+            const bg = document.getElementById('animated-bg');
+            const colors = ['#5865f2', '#eb459e', '#57f287', '#fee75c', '#ed4245'];
+            
+            for (let i = 0; i < 5; i++) {
+                const circle = document.createElement('div');
+                circle.classList.add('bg-circle');
+                circle.style.width = `${Math.random() * 300 + 100}px`;
+                circle.style.height = circle.style.width;
+                circle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                circle.style.left = `${Math.random() * 100}%`;
+                circle.style.top = `${Math.random() * 100}%`;
+                circle.style.animationDuration = `${Math.random() * 20 + 10}s`;
+                circle.style.animationDelay = `${Math.random() * 5}s`;
+                bg.appendChild(circle);
+            }
+        }
+
+        // 인트로 애니메이션
+        function playIntroAnimation() {
+            setTimeout(() => {
+                const intro = document.getElementById('intro');
+                intro.style.opacity = '0';
+                intro.style.transform = 'translateY(-100vh)';
+                
+                setTimeout(() => {
+                    intro.style.display = 'none';
+                    showMainScreen();
+                }, 1000);
+            }, 2500);
+        }
+
+        // 메인 화면 표시
+        function showMainScreen() {
+            const main = document.getElementById('main');
+            main.style.display = 'flex';
+            setTimeout(() => {
+                main.style.opacity = '1';
+                main.style.transform = 'translateY(0)';
+            }, 100);
+        }
+
+        // 카테고리 화면 표시
+        function showCategoryScreen() {
+            const main = document.getElementById('main');
+            const categoryContainer = document.getElementById('category-container');
+            
+            main.style.opacity = '0';
+            main.style.transform = 'translateY(-20px)';
+            
+            setTimeout(() => {
+                main.style.display = 'none';
+                categoryContainer.style.display = 'flex';
+                
+                setTimeout(() => {
+                    categoryContainer.style.opacity = '1';
+                    categoryContainer.style.transform = 'translateY(0)';
+                }, 100);
+            }, 500);
+        }
+
+        // 플레이어 화면 표시
+        function showPlayerScreen() {
+            const categoryContainer = document.getElementById('category-container');
+            const playerContainer = document.getElementById('player-container');
+            
+            categoryContainer.style.opacity = '0';
+            categoryContainer.style.transform = 'translateY(-20px)';
+            
+            setTimeout(() => {
+                categoryContainer.style.display = 'none';
+                playerContainer.style.display = 'flex';
+                
+                setTimeout(() => {
+                    playerContainer.style.opacity = '1';
+                    playerContainer.style.transform = 'translateY(0)';
+                }, 100);
+            }, 500);
+        }
+
+        // 카테고리 화면으로 돌아가기
+        function backToCategoryScreen() {
+            const playerContainer = document.getElementById('player-container');
+            const categoryContainer = document.getElementById('category-container');
+            
+            playerContainer.style.opacity = '0';
+            playerContainer.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                playerContainer.style.display = 'none';
+                categoryContainer.style.display = 'flex';
+                
+                setTimeout(() => {
+                    categoryContainer.style.opacity = '1';
+                    categoryContainer.style.transform = 'translateY(0)';
+                }, 100);
+            }, 500);
+        }
+
+        // 메인 화면으로 돌아가기
+        function backToMain() {
+            const categoryContainer = document.getElementById('category-container');
+            const main = document.getElementById('main');
+            
+            categoryContainer.style.opacity = '0';
+            categoryContainer.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                categoryContainer.style.display = 'none';
+                main.style.display = 'flex';
+                
+                setTimeout(() => {
+                    main.style.opacity = '1';
+                    main.style.transform = 'translateY(0)';
+                }, 100);
+            }, 500);
+        }
+
+        // 커스텀 검색 모달 표시
+        function showCustomSearchModal() {
+            const modal = document.getElementById('custom-search-modal');
+            modal.classList.add('active');
+            document.getElementById('custom-search-input').focus();
+        }
+
+        // 커스텀 검색 모달 닫기
+        function hideCustomSearchModal() {
+            const modal = document.getElementById('custom-search-modal');
+            modal.classList.remove('active');
+        }
+
+        // 로딩 표시
+        function showLoading() {
+            const loadingOverlay = document.getElementById('loading-overlay');
+            loadingOverlay.classList.add('active');
+        }
+
+        // 로딩 숨기기
+        function hideLoading() {
+            const loadingOverlay = document.getElementById('loading-overlay');
+            loadingOverlay.classList.remove('active');
+        }
+
+        // 알림 표시
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            const content = document.getElementById('notification-content');
+            content.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // 검색 타임아웃 처리
+        function handleSearchTimeout() {
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+            
+            // 30초 후에 검색이 여전히 진행 중이면 타임아웃 처리
+            searchTimeout = setTimeout(() => {
+                hideLoading();
+                failedAttempts++;
+                
+                if (failedAttempts >= 3) {
+                    // 3번 실패 시 검색 조건 완화
+                    relaxedSearch = true;
+                    showNotification('검색 조건을 완화하여 다시 시도합니다.');
+                    failedAttempts = 0;
+                }
+                
+                showNotification('검색 시간이 너무 오래 걸립니다. 다시 시도합니다.');
+                searchPopularMusicVideos(currentCategory);
+            }, 30000);
+        }
+
+        // YouTube API 준비 완료
+        window.onYouTubeIframeAPIReady = function() {
+            player = new YT.Player('youtube-player', {
+                height: '450',
+                width: '800',
+                videoId: '',
+                playerVars: {
+                    'autoplay': 0,
+                    'controls': 1,
+                    'rel': 0,
+                    'modestbranding': 1
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange,
+                    'onError': onPlayerError
+                }
+            });
+        };
+
+        // 플레이어 준비 완료
+        function onPlayerReady(event) {
+            // 플레이어 준비됨
+        }
+
+        // 플레이어 상태 변경
+        function onPlayerStateChange(event) {
+            // 영상이 끝나면 다음 영상 재생
+            if (event.data === YT.PlayerState.ENDED) {
+                playNextVideo();
+            }
+            
+            // 영상이 시작되면 알림 표시
+            if (event.data === YT.PlayerState.PLAYING && !isPlaying) {
+                isPlaying = true;
+                const videoData = player.getVideoData();
+                showNotification(`노래: ${videoData.title}`);
+            }
+        }
+
+        // 플레이어 에러 처리
+        function onPlayerError(event) {
+            console.log('Player error:', event.data);
+            // 에러 발생 시 다음 영상으로 넘어감
+            playNextVideo();
+        }
+
+        // 뮤직비디오 여부 확인 함수
+        function isMusicVideoTitle(title) {
+            title = title.toLowerCase();
+            
+            // 애니메이션이나 피아노 카테고리의 경우 예외 처리
+            if (currentCategory === '애니메이션' || currentCategory === '피아노') {
+                return true;
+            }
+            
+            // 완화된 검색 모드면 조건 완화
+            if (relaxedSearch) {
+                return true;
+            }
+            
+            // 지정된 키워드 중 하나라도 포함되면 true 반환
+            return musicVideoKeywords.some(keyword => title.includes(keyword.toLowerCase()));
+        }
+
+        // YouTube API로 카테고리별 뮤직비디오 검색
+        async function searchPopularMusicVideos(category) {
+            const apiKey = 'AIzaSyBdwqj7BBVgHhtjxc9rmOD4P6sFNB_PrmY';
+            
+            try {
+                // 검색 시작 알림 및 로딩 표시
+                showLoading();
+                document.getElementById('current-category').textContent = `카테고리: ${currentCategory}`;
+                
+                // 검색 타임아웃 설정
+                handleSearchTimeout();
+                
+                // 카테고리에 따른 검색 키워드 선택
+                let searchQuery = categoryKeywords[category] || '';
+                
+                // 랜덤한 쿼리 키워드 추가 (다양한 결과를 위해)
+                const additionalKeywords = ['music video', 'mv', 'official', 'song'];
+                const randomKeyword = additionalKeywords[Math.floor(Math.random() * additionalKeywords.length)];
+                searchQuery = `${searchQuery} ${randomKeyword}`;
+                
+                // 검색 요청: 뮤직 카테고리(10), medium 길이(중간 길이 영상)
+                const searchResponse = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(searchQuery)}&type=video&videoCategoryId=10&videoDuration=medium&maxResults=50&key=${apiKey}&regionCode=US&relevanceLanguage=en&safeSearch=strict`);
+                const searchData = await searchResponse.json();
+                
+                // 결과가 없으면 다시 시도
+                if (!searchData.items || searchData.items.length === 0) {
+                    hideLoading();
+                    failedAttempts++;
+                    
+                    if (failedAttempts >= 3) {
+                        relaxedSearch = true;
+                        showNotification('검색 조건을 완화하여 다시 시도합니다.');
+                        failedAttempts = 0;
+                    }
+                    
+                    showNotification('검색 결과가 없습니다. 다시 시도합니다.');
+                    return searchPopularMusicVideos(category);
+                }
+                
+                // 검색 결과에서 얻은 비디오 ID 목록
+                const initialVideoIds = searchData.items.map(item => item.id.videoId);
+                
+                // 비디오 ID로 상세 정보 요청 (재생시간, 조회수 등)
+                const videoDetailsResponse = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics,snippet&id=${initialVideoIds.join(',')}&key=${apiKey}`);
+                const videoDetailsData = await videoDetailsResponse.json();
+                
+                // 필터링: 1분 30초 ~ 5분 사이, 음악 관련 키워드 포함
+                videoIds = [];
+                
+                if (videoDetailsData.items && videoDetailsData.items.length > 0) {
+                    videoDetailsData.items.forEach(video => {
+                        // ISO 8601 형식 재생시간 파싱
+                        const duration = video.contentDetails.duration;
+                        const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+                        
+                        const hours = parseInt(match[1] || '0');
+                        const minutes = parseInt(match[2] || '0');
+                        const seconds = parseInt(match[3] || '0');
+                        
+                        const totalSeconds = hours * 3600 + minutes * 60 + seconds;
+                        
+                        // 제목과 설명에서 키워드 체크
+                        const title = video.snippet.title;
+                        const description = video.snippet.description.toLowerCase();
+                        
+                        // 제외할 키워드
+                        const excludeKeywords = ['shorts', 'reaction', 'unboxing', 'gameplay', 'review', 'tutorial', 'xxx', 'adult', 'nude'];
+                        const hasExcludedKeyword = excludeKeywords.some(keyword => 
+                            title.toLowerCase().includes(keyword) || description.includes(keyword)
+                        );
+                        
+                        // 뮤직비디오 키워드 포함 여부 확인
+                        const isMusicVideo = isMusicVideoTitle(title);
+                        
+                        // 필터링 조건: 
+                        // 1. 1분 30초(90초) ~ 8분(480초) 사이 (조금 여유있게)
+                        // 2. 제외 키워드 없음
+                        // 3. 뮤직비디오 관련 키워드 포함 (애니메이션/피아노 카테고리는 예외)
+                        // 4. 아직 시청하지 않은 영상
+                        if (
+                            totalSeconds >= 90 && 
+                            totalSeconds <= 480 && 
+                            !hasExcludedKeyword &&
+                            isMusicVideo &&
+                            !watchedVideos.includes(video.id)
+                        ) {
+                            videoIds.push(video.id);
+                        }
+                    });
+                }
+                
+                // 검색 타임아웃 취소
+                if (searchTimeout) {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = null;
+                }
+                
+                // 필터링 후 결과가 적으면 조건 완화 후 다시 검색
+                if (videoIds.length < 3) {
+                    hideLoading();
+                    failedAttempts++;
+                    
+                    // 시청 목록이 너무 많아져서 결과가 계속 적게 나온다면 시청 기록 일부 초기화
+                    if (watchedVideos.length > 100) {
+                        watchedVideos = watchedVideos.slice(-30); // 최근 30개만 유지
+                        localStorage.setItem('googlums_watched_videos', JSON.stringify(watchedVideos));
+                        showNotification('시청 기록이 많아 일부 초기화했습니다.');
+                    }
+                    
+                    if (failedAttempts >= 3) {
+                        relaxedSearch = true;
+                        showNotification('검색 조건을 완화하여 다시 시도합니다.');
+                        failedAttempts = 0;
+                    }
+                    
+                    return searchPopularMusicVideos(category);
+                }
+                
+                // 순서 섞기 (완전 랜덤재생)
+                shuffleArray(videoIds);
+                
+                // 검색 완료 알림
+                hideLoading();
+                showNotification('새로운 음악 목록이 준비되었습니다!');
+                
+                // 첫 번째 영상 재생
+                currentIndex = 0;
+                failedAttempts = 0; // 성공했으므로 실패 카운트 초기화
+                playCurrentVideo();
+                
+            } catch (error) {
+                console.error('API 요청 오류:', error);
+                hideLoading();
+                failedAttempts++;
+                
+                if (failedAttempts >= 3) {
+                    relaxedSearch = true;
+                    showNotification('검색 조건을 완화하여 다시 시도합니다.');
+                    failedAttempts = 0;
+                }
+                
+                showNotification('영상을 가져오는데 문제가 발생했습니다. 다시 시도합니다.');
+                setTimeout(() => {
+                    searchPopularMusicVideos(category);
+                }, 2000);
+            }
+        }
+        
+        // 배열 섞기 함수
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // 현재 비디오 재생
+        function playCurrentVideo() {
+            if (videoIds.length === 0) {
+                showNotification('재생할 영상이 없습니다. 다시 검색합니다.');
+                searchPopularMusicVideos(currentCategory.toLowerCase());
+                return;
+            }
+            
+            currentVideoId = videoIds[currentIndex];
+            
+            // 이미 시청한 영상인지 확인
+            if (watchedVideos.includes(currentVideoId)) {
+                // 시청한 영상이면 다음 영상으로 넘어감
+                playNextVideo();
+                return;
+            }
+            
+            // 시청 목록에 추가
+            watchedVideos.push(currentVideoId);
+            
+            // 로컬 스토리지에 시청 기록 저장
+            localStorage.setItem('googlums_watched_videos', JSON.stringify(watchedVideos));
+            
+            // 영상 재생
+            player.loadVideoById(currentVideoId);
+            isPlaying = false; // 영상 시작 시 알림을 위해 초기화
+        }
+
+        // 다음 비디오 재생
+        function playNextVideo() {
+            // 모든 영상을 시청했는지 확인
+            if (currentIndex >= videoIds.length - 1) {
+                showNotification('모든 영상을 시청했습니다. 새로운 목록을 검색합니다.');
+                searchPopularMusicVideos(currentCategory.toLowerCase());
+                return;
+            }
+            
+            // 다음 영상으로 이동
+            currentIndex++;
+            playCurrentVideo();
+        }
+
+        // 이벤트 리스너
+        document.addEventListener('DOMContentLoaded', function() {
+            createBackgroundAnimation();
+            playIntroAnimation();
+            
+            // 페이지 로딩 시 시청 기록 초기화 (사이트 재방문 시 초기화)
+            watchedVideos = [];
+            localStorage.removeItem('googlums_watched_videos');
+            
+            // 노래 재생 버튼 (카테고리 화면으로 이동)
+            document.getElementById('play-btn').addEventListener('click', function() {
+                showCategoryScreen();
+            });
+            
+            // 뒤로 가기 버튼 (카테고리 -> 메인)
+            document.getElementById('back-to-main-btn').addEventListener('click', function() {
+                backToMain();
+            });
+            
+            // 카테고리 버튼들
+            const categoryButtons = document.querySelectorAll('.category-btn');
+            categoryButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const category = this.getAttribute('data-category');
+                    
+                    if (category === 'custom') {
+                        // 커스텀 검색 모달 표시
+                        showCustomSearchModal();
+                    } else {
+                        // 카테고리 설정 및 재생
+                        switch(category) {
+                            case 'korea':
+                                currentCategory = '한국';
+                                break;
+                            case 'japan':
+                                currentCategory = '일본';
+                                break;
+                            case 'usa':
+                                currentCategory = '미국';
+                                break;
+                            case 'uk':
+                                currentCategory = '영국';
+                                break;
+                            case 'canada':
+                                currentCategory = '캐나다';
+                                break;
+                            case 'australia':
+                                currentCategory = '호주';
+                                break;
+                            case 'india':
+                                currentCategory = '인도';
+                                break;
+                            case 'animation':
+                                currentCategory = '애니메이션';
+                                break;
+                            case 'piano':
+                                currentCategory = '피아노';
+                                break;
+                            default:
+                                currentCategory = '일반';
+                        }
+                        
+                        relaxedSearch = false; // 새 카테고리 검색 시 완화된 조건 초기화
+                        failedAttempts = 0; // 실패 횟수 초기화
+                        showPlayerScreen();
+                        searchPopularMusicVideos(category);
+                    }
+                });
+            });
+            
+            // 커스텀 검색 취소 버튼
+            document.getElementById('custom-search-cancel').addEventListener('click', function() {
+                hideCustomSearchModal();
+            });
+            
+            // 커스텀 검색 확인 버튼
+            document.getElementById('custom-search-confirm').addEventListener('click', function() {
+                const customQuery = document.getElementById('custom-search-input').value.trim();
+                
+                if (customQuery !== '') {
+                    // 사용자 입력 쿼리 설정
+                    categoryKeywords.custom = customQuery;
+                    currentCategory = `커스텀: ${customQuery}`;
+                    
+                    hideCustomSearchModal();
+                    relaxedSearch = false; // 새 검색 시 완화된 조건 초기화
+                    failedAttempts = 0; // 실패 횟수 초기화
+                    showPlayerScreen();
+                    searchPopularMusicVideos('custom');
+                } else {
+                    showNotification('검색어를 입력해주세요.');
+                }
+            });
+            
+            // Enter 키로 커스텀 검색 확인
+            document.getElementById('custom-search-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('custom-search-confirm').click();
+                }
+            });
+            
+            // 플레이어 화면의 버튼들
+            document.getElementById('back-to-category-btn').addEventListener('click', function() {
+                player.stopVideo();
+                backToCategoryScreen();
+                isPlaying = false;
+            });
+            
+            document.getElementById('stop-btn').addEventListener('click', function() {
+                player.stopVideo();
+                isPlaying = false;
+                showNotification('재생이 중지되었습니다.');
+            });
+            
+            document.getElementById('next-btn').addEventListener('click', function() {
+                playNextVideo();
+            });
+        });
+    </script>
+<script>
+<script>
+        // YouTube API 로드
+        let tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        let firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        // 전역 변수
+        let player;
+        let currentVideoId = '';
+        let videoIds = [];
+        let currentIndex = 0;
+        let isPlaying = false;
+        let watchedVideos = []; // 시청한 영상 ID 저장
+        let currentCategory = '일반'; // 현재 선택된 카테고리
+        let searchTimeout = null; // 검색 타임아웃 핸들러
+        let failedAttempts = 0; // 검색 실패 횟수
+        let relaxedSearch = false; // 완화된 검색 조건 사용 여부
+
+        // API 키 목록 (여러 키를 순환해서 사용)
+        const apiKeys = [
+            'AIzaSyBdwqj7BBVgHhtjxc9rmOD4P6sFNB_PrmY', // 기본 키
+            'AIzaSyA8BYzXL-Q_I1FKnVJitOeQ2Wg_iEyU7dc', // 백업 키 1
+            'AIzaSyB_LgRU_VFnU3upHtkmvHxoHrqV3WvdtG8'  // 백업 키 2
+        ];
+        let currentApiKeyIndex = 0; // 현재 사용 중인 API 키 인덱스
+        let apiKeyFailureCount = 0; // 현재 API 키 실패 횟수
+
+        // 현재 API 키 가져오기
+        function getCurrentApiKey() {
+            return apiKeys[currentApiKeyIndex];
+        }
+
+        // API 키 변경 함수 - 실패 시에만 호출
+        function switchToNextApiKey() {
+            apiKeyFailureCount = 0; // 새 키로 바꾸면 실패 카운트 리셋
+            currentApiKeyIndex = (currentApiKeyIndex + 1) % apiKeys.length;
+            showNotification(`API 키 변경: ${currentApiKeyIndex + 1}번 키로 전환합니다.`);
+            return getCurrentApiKey();
+        }
+
+        // 뮤직비디오 관련 키워드 (제목에 포함되어야 함)
+        const musicVideoKeywords = [
+            'official music video', 'official video', 'music video', 'lyric video',
+            'visualizer', 'visualiser', 'performance video', 'dance performance',
+            'live performance', 'live video', 'official audio', 'audio',
+            'fanmade video', 'teaser', 'trailer', 'behind the scenes',
+            'concept film', 'short film', 'dance practice video', 'official audio'
+        ];
+
+        // 카테고리별 검색 키워드
+        const categoryKeywords = {
+            'korea': 'korean music k-pop kpop',
+            'japan': 'japanese music j-pop jpop',
+            'usa': 'american music us pop',
+            'uk': 'british music uk pop',
+            'canada': 'canadian music canada',
+            'australia': 'australian music australia',
+            'india': 'indian music bollywood',
+            'animation': 'anime music soundtrack theme song',
+            'piano': 'piano music instrumental cover',
+            'custom': '' // 사용자 입력으로 채워짐
+        };
+
+        // 배경 애니메이션 생성
+        function createBackgroundAnimation() {
+            const bg = document.getElementById('animated-bg');
+            const colors = ['#5865f2', '#eb459e', '#57f287', '#fee75c', '#ed4245'];
+            
+            for (let i = 0; i < 5; i++) {
+                const circle = document.createElement('div');
+                circle.classList.add('bg-circle');
+                circle.style.width = `${Math.random() * 300 + 100}px`;
+                circle.style.height = circle.style.width;
+                circle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                circle.style.left = `${Math.random() * 100}%`;
+                circle.style.top = `${Math.random() * 100}%`;
+                circle.style.animationDuration = `${Math.random() * 20 + 10}s`;
+                circle.style.animationDelay = `${Math.random() * 5}s`;
+                bg.appendChild(circle);
+            }
+        }
+
+        // 인트로 애니메이션
+        function playIntroAnimation() {
+            setTimeout(() => {
+                const intro = document.getElementById('intro');
+                intro.style.opacity = '0';
+                intro.style.transform = 'translateY(-100vh)';
+                
+                setTimeout(() => {
+                    intro.style.display = 'none';
+                    showMainScreen();
+                }, 1000);
+            }, 2500);
+        }
+
+        // 메인 화면 표시
+        function showMainScreen() {
+            const main = document.getElementById('main');
+            main.style.display = 'flex';
+            setTimeout(() => {
+                main.style.opacity = '1';
+                main.style.transform = 'translateY(0)';
+            }, 100);
+        }
+
+        // 카테고리 화면 표시
+        function showCategoryScreen() {
+            const main = document.getElementById('main');
+            const categoryContainer = document.getElementById('category-container');
+            
+            main.style.opacity = '0';
+            main.style.transform = 'translateY(-20px)';
+            
+            setTimeout(() => {
+                main.style.display = 'none';
+                categoryContainer.style.display = 'flex';
+                
+                setTimeout(() => {
+                    categoryContainer.style.opacity = '1';
+                    categoryContainer.style.transform = 'translateY(0)';
+                }, 100);
+            }, 500);
+        }
+
+        // 플레이어 화면 표시
+        function showPlayerScreen() {
+            const categoryContainer = document.getElementById('category-container');
+            const playerContainer = document.getElementById('player-container');
+            
+            categoryContainer.style.opacity = '0';
+            categoryContainer.style.transform = 'translateY(-20px)';
+            
+            setTimeout(() => {
+                categoryContainer.style.display = 'none';
+                playerContainer.style.display = 'flex';
+                
+                setTimeout(() => {
+                    playerContainer.style.opacity = '1';
+                    playerContainer.style.transform = 'translateY(0)';
+                }, 100);
+            }, 500);
+        }
+</script>
+
+<script>
+// YouTube API 준비 완료
+        window.onYouTubeIframeAPIReady = function() {
+            player = new YT.Player('youtube-player', {
+                height: '450',
+                width: '800',
+                videoId: '',
+                playerVars: {
+                    'autoplay': 0,
+                    'controls': 1,
+                    'rel': 0,
+                    'modestbranding': 1
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange,
+                    'onError': onPlayerError
+                }
+            });
+        };
+
+        // 플레이어 준비 완료
+        function onPlayerReady(event) {
+            // 플레이어 준비됨
+        }
+
+        // 플레이어 상태 변경
+        function onPlayerStateChange(event) {
+            // 영상이 끝나면 다음 영상 재생
+            if (event.data === YT.PlayerState.ENDED) {
+                playNextVideo();
+            }
+            
+            // 영상이 시작되면 알림 표시
+            if (event.data === YT.PlayerState.PLAYING && !isPlaying) {
+                isPlaying = true;
+                const videoData = player.getVideoData();
+                showNotification(`노래: ${videoData.title}`);
+            }
+        }
+
+        // 플레이어 에러 처리
+        function onPlayerError(event) {
+            console.log('Player error:', event.data);
+            // 에러 발생 시 다음 영상으로 넘어감
+            playNextVideo();
+        }
+
+        // 뮤직비디오 여부 확인 함수
+        function isMusicVideoTitle(title) {
+            title = title.toLowerCase();
+            
+            // 애니메이션이나 피아노 카테고리의 경우 예외 처리
+            if (currentCategory === '애니메이션' || currentCategory === '피아노') {
+                return true;
+            }
+            
+            // 완화된 검색 모드면 조건 완화
+            if (relaxedSearch) {
+                return true;
+            }
+            
+            // 지정된 키워드 중 하나라도 포함되면 true 반환
+            return musicVideoKeywords.some(keyword => title.includes(keyword.toLowerCase()));
+        }
+
+        // API 키 관리 함수
+        function getApiKey() {
+            // 기본 API 키
+            const apiKeys = [
+                'AIzaSyBdwqj7BBVgHhtjxc9rmOD4P6sFNB_PrmY', // 원래 키
+                'AIzaSyA8BYzXL-Q_I1FKnVJitOeQ2Wg_iEyU7dc', // 백업 키 1
+                'AIzaSyB_LgRU_VFnU3upHtkmvHxoHrqV3WvdtG8'  // 백업 키 2
+            ];
+            
+            const currentKeyIndex = localStorage.getItem('googlums_api_key_index') || 0;
+            return {
+                key: apiKeys[currentKeyIndex],
+                index: parseInt(currentKeyIndex)
+            };
+        }
+
+        // API 키 변경 함수
+        function switchToNextApiKey() {
+            const apiKeyInfo = getApiKey();
+            const nextIndex = (apiKeyInfo.index + 1) % 3; // 3개의 키를 순환
+            
+            localStorage.setItem('googlums_api_key_index', nextIndex);
+            showNotification(`API 키가 작동하지 않아 다른 키로 전환합니다. (${nextIndex + 1}/3)`);
+            
+            return getApiKey().key;
+        }
+
+        // YouTube API로 카테고리별 뮤직비디오 검색
+        async function searchPopularMusicVideos(category) {
+            let apiKey = getApiKey().key;
+            
+            try {
+                // 검색 시작 알림 및 로딩 표시
+                showLoading();
+                document.getElementById('current-category').textContent = `카테고리: ${currentCategory}`;
+                
+                // 검색 타임아웃 설정
+                handleSearchTimeout();
+                
+                // 카테고리에 따른 검색 키워드 선택
+                let searchQuery = categoryKeywords[category] || '';
+                
+                // 랜덤한 쿼리 키워드 추가 (다양한 결과를 위해)
+                const additionalKeywords = ['music video', 'mv', 'official', 'song'];
+                const randomKeyword = additionalKeywords[Math.floor(Math.random() * additionalKeywords.length)];
+                searchQuery = `${searchQuery} ${randomKeyword}`;
+                
+                // 검색 요청: 뮤직 카테고리(10), medium 길이(중간 길이 영상)
+                const searchResponse = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(searchQuery)}&type=video&videoCategoryId=10&videoDuration=medium&maxResults=50&key=${apiKey}&regionCode=US&relevanceLanguage=en&safeSearch=strict`);
+                
+                // API 키 에러 처리
+                if (!searchResponse.ok) {
+                    if (searchResponse.status === 403 || searchResponse.status === 400) {
+                        // API 키 할당량 초과 또는 잘못된 키
+                        console.log('API 키 오류:', searchResponse.status);
+                        apiKey = switchToNextApiKey();
+                        return searchPopularMusicVideos(category); // 새 키로 다시 시도
+                    }
+                }
+                
+                const searchData = await searchResponse.json();
+                
+                // API 오류 확인
+                if (searchData.error) {
+                    console.log('API 응답 오류:', searchData.error);
+                    if (searchData.error.code === 403 || searchData.error.code === 400) {
+                        apiKey = switchToNextApiKey();
+                        return searchPopularMusicVideos(category); // 새 키로 다시 시도
+                    }
+                }
+                
+                // 결과가 없으면 다시 시도
+                if (!searchData.items || searchData.items.length === 0) {
+                    hideLoading();
+                    failedAttempts++;
+                    
+                    if (failedAttempts >= 3) {
+                        relaxedSearch = true;
+                        showNotification('검색 조건을 완화하여 다시 시도합니다.');
+                        failedAttempts = 0;
+                    }
+                    
+                    showNotification('검색 결과가 없습니다. 다시 시도합니다.');
+                    return searchPopularMusicVideos(category);
+                }
+                
+                // 검색 결과에서 얻은 비디오 ID 목록
+                const initialVideoIds = searchData.items.map(item => item.id.videoId);
+                
+                try {
+                    // 비디오 ID로 상세 정보 요청 (재생시간, 조회수 등)
+                    const videoDetailsResponse = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics,snippet&id=${initialVideoIds.join(',')}&key=${apiKey}`);
+                    
+                    // API 키 에러 처리
+                    if (!videoDetailsResponse.ok) {
+                        if (videoDetailsResponse.status === 403 || videoDetailsResponse.status === 400) {
+                            console.log('상세 정보 API 키 오류:', videoDetailsResponse.status);
+                            apiKey = switchToNextApiKey();
+                            return searchPopularMusicVideos(category); // 새 키로 다시 시도
+                        }
+                    }
+                    
+                    const videoDetailsData = await videoDetailsResponse.json();
+                    
+                    // API 오류 확인
+                    if (videoDetailsData.error) {
+                        console.log('상세 정보 API 응답 오류:', videoDetailsData.error);
+                        if (videoDetailsData.error.code === 403 || videoDetailsData.error.code === 400) {
+                            apiKey = switchToNextApiKey();
+                            return searchPopularMusicVideos(category); // 새 키로 다시 시도
+                        }
+                    }
+                    
+                    // 필터링: 1분 30초 ~ 5분 사이, 음악 관련 키워드 포함
+                    videoIds = [];
+                    
+                    if (videoDetailsData.items && videoDetailsData.items.length > 0) {
+                        videoDetailsData.items.forEach(video => {
+                            // ISO 8601 형식 재생시간 파싱
+                            const duration = video.contentDetails.duration;
+                            const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+                            
+                            const hours = parseInt(match[1] || '0');
+                            const minutes = parseInt(match[2] || '0');
+                            const seconds = parseInt(match[3] || '0');
+                            
+                            const totalSeconds = hours * 3600 + minutes * 60 + seconds;
+                            
+                            // 제목과 설명에서 키워드 체크
+                            const title = video.snippet.title;
+                            const description = video.snippet.description.toLowerCase();
+                            
+                            // 제외할 키워드
+                            const excludeKeywords = ['shorts', 'reaction', 'unboxing', 'gameplay', 'review', 'tutorial', 'xxx', 'adult', 'nude'];
+                            const hasExcludedKeyword = excludeKeywords.some(keyword => 
+                                title.toLowerCase().includes(keyword) || description.includes(keyword)
+                            );
+                            
+                            // 뮤직비디오 키워드 포함 여부 확인
+                            const isMusicVideo = isMusicVideoTitle(title);
+                            
+                            // 필터링 조건: 
+                            // 1. 1분 30초(90초) ~ 8분(480초) 사이 (조금 여유있게)
+                            // 2. 제외 키워드 없음
+                            // 3. 뮤직비디오 관련 키워드 포함 (애니메이션/피아노 카테고리는 예외)
+                            // 4. 아직 시청하지 않은 영상
+                            if (
+                                totalSeconds >= 90 && 
+                                totalSeconds <= 480 && 
+                                !hasExcludedKeyword &&
+                                isMusicVideo &&
+                                !watchedVideos.includes(video.id)
+                            ) {
+                                videoIds.push(video.id);
+                            }
+                        });
+                    }
+                } catch (detailsError) {
+                    console.error('비디오 상세 정보 요청 오류:', detailsError);
+                    apiKey = switchToNextApiKey();
+                    return searchPopularMusicVideos(category); // 새 키로 다시 시도
+                }
+                
+                // 검색 타임아웃 취소
+                if (searchTimeout) {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = null;
+                }
+                
+                // 필터링 후 결과가 적으면 조건 완화 후 다시 검색
+                if (videoIds.length < 3) {
+                    hideLoading();
+                    failedAttempts++;
+                    
+                    // 시청 목록이 너무 많아져서 결과가 계속 적게 나온다면 시청 기록 일부 초기화
+                    if (watchedVideos.length > 100) {
+                        watchedVideos = watchedVideos.slice(-30); // 최근 30개만 유지
+                        localStorage.setItem('googlums_watched_videos', JSON.stringify(watchedVideos));
+                        showNotification('시청 기록이 많아 일부 초기화했습니다.');
+                    }
+                    
+                    if (failedAttempts >= 3) {
+                        relaxedSearch = true;
+                        showNotification('검색 조건을 완화하여 다시 시도합니다.');
+                        failedAttempts = 0;
+                    }
+                    
+                    return searchPopularMusicVideos(category);
+                }
+                
+                // 순서 섞기 (완전 랜덤재생)
+                shuffleArray(videoIds);
+                
+                // 검색 완료 알림
+                hideLoading();
+                showNotification('새로운 음악 목록이 준비되었습니다!');
+                
+                // 첫 번째 영상 재생
+                currentIndex = 0;
+                failedAttempts = 0; // 성공했으므로 실패 카운트 초기화
+                playCurrentVideo();
+                
+            } catch (error) {
+                console.error('API 요청 오류:', error);
+                hideLoading();
+                
+                // API 키 오류인지 확인
+                if (error.message && (error.message.includes('403') || error.message.includes('quota'))) {
+                    apiKey = switchToNextApiKey();
+                    return searchPopularMusicVideos(category); // 새 키로 다시 시도
+                }
+                
+                failedAttempts++;
+                
+                if (failedAttempts >= 3) {
+                    relaxedSearch = true;
+                    showNotification('검색 조건을 완화하여 다시 시도합니다.');
+                    failedAttempts = 0;
+                }
+                
+                showNotification('영상을 가져오는데 문제가 발생했습니다. 다시 시도합니다.');
+                setTimeout(() => {
+                    searchPopularMusicVideos(category);
+                }, 2000);
+            }
+        }
+</script>
+
+<script>
+// 배열 섞기 함수
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // 현재 비디오 재생
+        function playCurrentVideo() {
+            if (videoIds.length === 0) {
+                showNotification('재생할 영상이 없습니다. 다시 검색합니다.');
+                searchPopularMusicVideos(currentCategory.toLowerCase());
+                return;
+            }
+            
+            currentVideoId = videoIds[currentIndex];
+            
+            // 이미 시청한 영상인지 확인
+            if (watchedVideos.includes(currentVideoId)) {
+                // 시청한 영상이면 다음 영상으로 넘어감
+                playNextVideo();
+                return;
+            }
+            
+            // 시청 목록에 추가
+            watchedVideos.push(currentVideoId);
+            
+            // 로컬 스토리지에 시청 기록 저장
+            localStorage.setItem('googlums_watched_videos', JSON.stringify(watchedVideos));
+            
+            // 영상 재생
+            player.loadVideoById(currentVideoId);
+            isPlaying = false; // 영상 시작 시 알림을 위해 초기화
+        }
+
+        // 다음 비디오 재생
+        function playNextVideo() {
+            // 모든 영상을 시청했는지 확인
+            if (currentIndex >= videoIds.length - 1) {
+                showNotification('모든 영상을 시청했습니다. 새로운 목록을 검색합니다.');
+                searchPopularMusicVideos(currentCategory.toLowerCase());
+                return;
+            }
+            
+            // 다음 영상으로 이동
+            currentIndex++;
+            playCurrentVideo();
+        }
+
+        // 이벤트 리스너
+        document.addEventListener('DOMContentLoaded', function() {
+            createBackgroundAnimation();
+            playIntroAnimation();
+            
+            // 페이지 로딩 시 API 키 인덱스 확인 또는 초기화
+            if (!localStorage.getItem('googlums_api_key_index')) {
+                localStorage.setItem('googlums_api_key_index', 0);
+            }
+            
+            // 페이지 로딩 시 시청 기록 초기화 (사이트 재방문 시 초기화)
+            watchedVideos = [];
+            localStorage.removeItem('googlums_watched_videos');
+            
+            // 노래 재생 버튼 (카테고리 화면으로 이동)
+            document.getElementById('play-btn').addEventListener('click', function() {
+                showCategoryScreen();
+            });
+            
+            // 뒤로 가기 버튼 (카테고리 -> 메인)
+            document.getElementById('back-to-main-btn').addEventListener('click', function() {
+                backToMain();
+            });
+            
+            // 카테고리 버튼들
+            const categoryButtons = document.querySelectorAll('.category-btn');
+            categoryButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const category = this.getAttribute('data-category');
+                    
+                    if (category === 'custom') {
+                        // 커스텀 검색 모달 표시
+                        showCustomSearchModal();
+                    } else {
+                        // 카테고리 설정 및 재생
+                        switch(category) {
+                            case 'korea':
+                                currentCategory = '한국';
+                                break;
+                            case 'japan':
+                                currentCategory = '일본';
+                                break;
+                            case 'usa':
+                                currentCategory = '미국';
+                                break;
+                            case 'uk':
+                                currentCategory = '영국';
+                                break;
+                            case 'canada':
+                                currentCategory = '캐나다';
+                                break;
+                            case 'australia':
+                                currentCategory = '호주';
+                                break;
+                            case 'india':
+                                currentCategory = '인도';
+                                break;
+                            case 'animation':
+                                currentCategory = '애니메이션';
+                                break;
+                            case 'piano':
+                                currentCategory = '피아노';
+                                break;
+                            default:
+                                currentCategory = '일반';
+                        }
+                        
+                        relaxedSearch = false; // 새 카테고리 검색 시 완화된 조건 초기화
+                        failedAttempts = 0; // 실패 횟수 초기화
+                        showPlayerScreen();
+                        searchPopularMusicVideos(category);
+                    }
+                });
+            });
+            
+            // 커스텀 검색 취소 버튼
+            document.getElementById('custom-search-cancel').addEventListener('click', function() {
+                hideCustomSearchModal();
+            });
+            
+            // 커스텀 검색 확인 버튼
+            document.getElementById('custom-search-confirm').addEventListener('click', function() {
+                const customQuery = document.getElementById('custom-search-input').value.trim();
+                
+                if (customQuery !== '') {
+                    // 사용자 입력 쿼리 설정
+                    categoryKeywords.custom = customQuery;
+                    currentCategory = `커스텀: ${customQuery}`;
+                    
+                    hideCustomSearchModal();
+                    relaxedSearch = false; // 새 검색 시 완화된 조건 초기화
+                    failedAttempts = 0; // 실패 횟수 초기화
+                    showPlayerScreen();
+                    searchPopularMusicVideos('custom');
+                } else {
+                    showNotification('검색어를 입력해주세요.');
+                }
+            });
+            
+            // Enter 키로 커스텀 검색 확인
+            document.getElementById('custom-search-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('custom-search-confirm').click();
+                }
+            });
+            
+            // 플레이어 화면의 버튼들
+            document.getElementById('back-to-category-btn').addEventListener('click', function() {
+                player.stopVideo();
+                backToCategoryScreen();
+                isPlaying = false;
+            });
+            
+            document.getElementById('stop-btn').addEventListener('click', function() {
+                player.stopVideo();
+                isPlaying = false;
+                showNotification('재생이 중지되었습니다.');
+            });
+            
+            document.getElementById('next-btn').addEventListener('click', function() {
+                playNextVideo();
+            });
+        });
+    </script>
+
+<script>
+let player, audioCtx, source, analyser, canvas, ctx, dataArray, bufferLength, animationId;
+
+function onYouTubeIframeAPIReady() {
+    player = new YT.Player('player', {
+        height: '360',
+        width: '640',
+        videoId: 'YOUR_VIDEO_ID', // 기존 코드의 videoId로 교체됨
+        events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+        },
+        playerVars: {
+            'playsinline': 1
+        }
+    });
+}
+
+function onPlayerReady(event) {
+    event.target.playVideo();
+    setupAudioContext();
+}
+
+function setupAudioContext() {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const iframe = document.querySelector('iframe');
+    const iframeSource = audioCtx.createMediaElementSource(iframe);
+
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 256;
+    bufferLength = analyser.frequencyBinCount;
+    dataArray = new Uint8Array(bufferLength);
+
+    iframeSource.connect(analyser);
+    analyser.connect(audioCtx.destination);
+
+    canvas = document.createElement('canvas');
+    canvas.id = 'visualizerCanvas';
+    canvas.style.position = 'absolute';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.pointerEvents = 'none';
+    document.body.appendChild(canvas);
+    ctx = canvas.getContext('2d');
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+    drawVisualizer();
+}
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+function drawVisualizer() {
+    animationId = requestAnimationFrame(drawVisualizer);
+    analyser.getByteFrequencyData(dataArray);
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const barWidth = (canvas.width / bufferLength) * 2.5;
+    let x = 0;
+
+    for (let i = 0; i < bufferLength; i++) {
+        const barHeight = dataArray[i] * 2;
+        const r = barHeight + (25 * (i/bufferLength));
+        const g = 250 * (i/bufferLength);
+        const b = 50;
+
+        ctx.fillStyle = `rgb(${r},${g},${b})`;
+        ctx.fillRect(x, canvas.height - barHeight/2, barWidth, barHeight/2);
+        x += barWidth + 1;
+    }
+}
+
+function onPlayerStateChange(event) {
+    if (event.data === YT.PlayerState.PLAYING && !audioCtx) {
+        setupAudioContext();
+    }
+}
+
+// YouTube Iframe API script loader
+var tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+var firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+</script>
+
+</body>
+</html>
+</script>
+
+<script>
+let player, audioCtx, source, analyser, canvas, ctx, dataArray, bufferLength, animationId;
+
+function onYouTubeIframeAPIReady() {
+    player = new YT.Player('player', {
+        height: '360',
+        width: '640',
+        videoId: 'YOUR_VIDEO_ID', // 기존 코드의 videoId로 교체됨
+        events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+        },
+        playerVars: {
+            'playsinline': 1
+        }
+    });
+}
+
+function onPlayerReady(event) {
+    event.target.playVideo();
+    setupAudioContext();
+}
+
+function setupAudioContext() {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const iframe = document.querySelector('iframe');
+    const iframeSource = audioCtx.createMediaElementSource(iframe);
+
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 256;
+    bufferLength = analyser.frequencyBinCount;
+    dataArray = new Uint8Array(bufferLength);
+
+    iframeSource.connect(analyser);
+    analyser.connect(audioCtx.destination);
+
+    canvas = document.createElement('canvas');
+    canvas.id = 'visualizerCanvas';
+    canvas.style.position = 'absolute';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.pointerEvents = 'none';
+    document.body.appendChild(canvas);
+    ctx = canvas.getContext('2d');
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+    drawVisualizer();
+}
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+function drawVisualizer() {
+    animationId = requestAnimationFrame(drawVisualizer);
+    analyser.getByteFrequencyData(dataArray);
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const barWidth = (canvas.width / bufferLength) * 2.5;
+    let x = 0;
+
+    for (let i = 0; i < bufferLength; i++) {
+        const barHeight = dataArray[i] * 2;
+        const r = barHeight + (25 * (i/bufferLength));
+        const g = 250 * (i/bufferLength);
+        const b = 50;
+
+        ctx.fillStyle = `rgb(${r},${g},${b})`;
+        ctx.fillRect(x, canvas.height - barHeight/2, barWidth, barHeight/2);
+        x += barWidth + 1;
+    }
+}
+
+function onPlayerStateChange(event) {
+    if (event.data === YT.PlayerState.PLAYING && !audioCtx) {
+        setupAudioContext();
+    }
+}
+
+// YouTube Iframe API script loader
+var tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+var firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+</script>
+
+</body>
+</html>
